@@ -12,8 +12,7 @@ from ..exceptions import MatchingIDNotFound
 
 
 class BiMap(object):
-
-    def __init__(self, class_A, class_B, converters=(int,int), filename=None):
+    def __init__(self, class_A, class_B, converters=(int, int), filename=None):
         """
         Bi-bidirectional map class.
 
@@ -60,19 +59,23 @@ class BiMap(object):
         name_B = self.class_B.__name__.upper()
 
         if filename is None:
-            filename = '{a}_to_{b}.csv'.format(a=name_A.lower(), b=name_B.lower())
+            filename = "{a}_to_{b}.csv".format(a=name_A.lower(), b=name_B.lower())
             filename = data.open_text(data, filename)
-        elif not hasattr(filename, 'read'):
+        elif not hasattr(filename, "read"):
             # Conversion to handle pathlib on Python < 3.6:
             filename = str(filename)
             filename = open(filename)
 
         with filename as _f:
-            self._to_map = {converters[1](v[name_B]):converters[0](v[name_A])
-                            for v in csv.DictReader(_f)}
+            self._to_map = {
+                converters[1](v[name_B]): converters[0](v[name_A])
+                for v in csv.DictReader(_f)
+            }
             _f.seek(0)
-            self._from_map = {converters[0](v[name_A]):converters[1](v[name_B])
-                              for v in csv.DictReader(_f)}
+            self._from_map = {
+                converters[0](v[name_A]): converters[1](v[name_B])
+                for v in csv.DictReader(_f)
+            }
 
     def __getitem__(self, value):
         if isinstance(value, self.class_B):
@@ -86,13 +89,17 @@ class BiMap(object):
             except KeyError:
                 pass
         msg = "Matching {a}-{b} for input {v} not found !".format(
-              a=self.class_A.__name__, b=self.class_B.__name__, v=value)
+            a=self.class_A.__name__, b=self.class_B.__name__, v=value
+        )
         raise MatchingIDNotFound(msg)
 
     def __repr__(self):
         return "<{self.__class__.__name__}({a}-{b}): {n} matches>".format(
-                self=self,
-                a=self.class_A.__name__, b=self.class_B.__name__, n=self.__len__())
+            self=self,
+            a=self.class_A.__name__,
+            b=self.class_B.__name__,
+            n=self.__len__(),
+        )
 
     def __str__(self):
         return repr(self)
